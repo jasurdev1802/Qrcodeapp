@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR APP PRO</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+/* ===== BODY + ANIMATED SALATINIY GRADIENT ===== */
+body {
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(45deg, #ffeb3b, #ffc107, #4caf50, #ff9800);
+  background-size: 600% 600%;
+  animation: neonShift 20s ease infinite;
+  transition: background 0.5s, color 0.5s;
+  overflow-x: hidden;
+}
+body.dark {
+  background: linear-gradient(45deg, #222, #444, #666, #888);
+  background-size: 600% 600%;
+  animation: neonShiftDark 25s ease infinite;
+  color: #fff;
+}
+@keyframes neonShift {
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+@keyframes neonShiftDark {
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+  background: rgba(0,0,0,0.25) !important;
+  backdrop-filter: blur(12px);
+  transition: 0.5s;
+}
+body.dark .navbar {
+  background: rgba(0,0,0,0.7) !important;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 25px;
+  padding: 35px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+  transition: all 0.5s;
+}
+body.dark .container {
+  background: rgba(40,40,40,0.6);
+}
+
+/* ===== INPUTS + BUTTONS ===== */
+input, select {
+  border-radius: 12px !important;
+  border: none !important;
+  padding: 12px !important;
+  transition: all 0.3s;
+  background: rgba(255,255,255,0.1);
+  color: #000;
+}
+body.dark input, body.dark select {
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+}
+input:focus, select:focus {
+  box-shadow: 0 0 15px #4caf50;
+  outline: none;
+}
+.btn {
+  border-radius: 12px !important;
+  padding: 10px 22px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(45deg, #ffeb3b, #ffc107, #4caf50, #ff9800);
+  background-size: 600% 600%;
+  animation: neonShift 10s ease infinite;
+  color: #000;
+  font-weight: bold;
+}
+body.dark .btn {
+  background: linear-gradient(45deg, #555, #777, #999, #bbb);
+  animation: neonShiftDark 12s ease infinite;
+  color: #fff;
+}
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #4caf50, 0 0 25px #ffeb3b inset;
+}
+
+/* ===== DARK/LIGHT TOGGLE ===== */
+#themeToggle {
+  width: 60px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ffeb3b;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.5s;
+  box-shadow: 0 0 10px #ffec99;
+}
+#themeToggle .sun-rays {
+  position:absolute;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background: radial-gradient(circle, rgba(255,255,150,0.5) 0%, rgba(255,255,150,0) 70%);
+  animation: spin 5s linear infinite;
+  top:-15px; left:-15px;
+  pointer-events: none;
+  opacity:0.7;
+  transition: opacity 0.5s;
+}
+#themeToggle .moon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: black;
+  position: relative;
+  transition: all 0.6s ease-in-out;
+  box-shadow: 0 0 6px #000 inset;
+}
+#themeToggle .moon::before {
+  content:'';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffeb3b;
+  top:0;
+  left:6px;
+  transition: all 0.6s ease-in-out;
+}
+body.dark #themeToggle {
+  background: #222;
+  box-shadow: 0 0 10px #999;
+}
+body.dark #themeToggle .moon {
+  background: white;
+  box-shadow: 0 0 10px #fff inset;
+}
+body.dark #themeToggle .moon::before {
+  left:-6px;
+  background: #121212;
+}
+#themeToggle .stars {
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0; left:0;
+  pointer-events: none;
+}
+#themeToggle .stars div {
+  position:absolute;
+  width:2px;
+  height:2px;
+  background:white;
+  border-radius:50%;
+  animation: twinkle 2s infinite alternate;
+}
+body:not(.dark) #themeToggle .stars { display:none; }
+
+@keyframes spin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
+@keyframes twinkle { 0%{opacity:0;}50%{opacity:1;}100%{opacity:0;} }
+
+/* ===== LOADER ===== */
+#loader {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.6); display:flex;
+  justify-content:center; align-items:center; z-index:9999;
+  backdrop-filter: blur(5px);
+}
+#loader .spinner-border { width:4rem; height:4rem; }
+
+/* ===== SCANNER ===== */
+#reader {
+  width:100%;
+  max-width: 420px;
+  height: 320px;
+  margin: auto;
+  position: relative;
+  z-index: 1;
+  border-radius: 25px;
+  overflow: visible;
+  box-shadow:0 20px 50px rgba(0,0,0,0.5);
+  border: 5px solid rgba(255,255,255,0.3); }
+#reader video {
+  width:100% !important;
+  height:100% !important;
+  object-fit: cover;
+  border-radius: 20px;
+}
+#scannerControls {
+  display:none;
+}
+.scanner-wrapper { position: relative; display: inline-block; }
+.scan-frame { position:absolute; width:260px; height:260px; top:50%; left:50%; transform:translate(-50%,-50%); border:3px solid #00ffcc; border-radius:20px; box-shadow:0 0 20px #00ffcc;
+z-index: 10; }
+.scan-line { position:absolute; width:240px; height:4px; background:#00ffcc; top:calc(50% - 120px); left:50%; transform:translateX(-50%); animation:scanMove 2s linear infinite; box-shadow:0 0 10px #00ffcc;
+z-index: 10; }
+@keyframes scanMove { 0% { top:calc(50% - 120px); } 50% { top:calc(50% + 120px); } 100% { top:calc(50% - 120px); } }
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media(max-width:576px){
+  .container { padding: 20px; }
+  .scanner-wrapper { width: 90%; }
+  #reader { width:100%; height:300px; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader" style="display:none">
+  <div class="spinner-border text-light"></div>
+</div>
+
+<nav class="navbar navbar-dark">
+<div class="container-fluid">
+<span class="navbar-brand">QR APP PRO</span>
+<div class="d-flex gap-2">
+<button class="btn" onclick="showGenerator()">Generator</button>
+<button class="btn" onclick="showScanner()">Scanner</button>
+<button class="btn" onclick="showHistory()">Tarix</button>
+
+<!-- Dark/Light Toggle -->
+<div id="themeToggle">
+  <div class="sun-rays"></div>
+  <div class="moon"></div>
+  <div class="stars">
+    <div style="top:5px; left:10px;"></div>
+    <div style="top:15px; left:40px;"></div>
+    <div style="top:20px; left:25px;"></div>
+    <div style="top:8px; left:50px;"></div>
+  </div>
+</div>
+
+<button class="btn btn-danger" onclick="logout()">Logout</button>
+</div>
+</div>
+</nav>
+
+<div class="container py-4">
+<!-- AUTH -->
+<div id="auth">
+<div id="loginForm">
+<h3>Login</h3>
+<input id="username" class="form-control mb-2" placeholder="Username">
+<input id="password" type="password" class="form-control mb-2" placeholder="Password">
+<button class="btn w-100" onclick="login()">Login</button>
+<p class="mt-3 text-center">
+Hisob yo‘qmi?
+<a href="#" onclick="showRegister()">Ro‘yxatdan o‘tish</a>
+</p>
+</div>
+
+<div id="registerForm" style="display:none">
+<h3>Register</h3>
+<input id="regUser" class="form-control mb-2" placeholder="Username">
+<input id="regPass" type="password" class="form-control mb-2" placeholder="Password">
+<button class="btn w-100" onclick="register()">Register</button>
+<p class="mt-3 text-center">
+<a href="#" onclick="showLogin()">Login ga qaytish</a>
+</p>
+</div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+
+<!-- GENERATOR -->
+<div id="generatorPage">
+<input id="qrText" class="form-control my-2" placeholder="Matn...">
+<select id="qrColor" class="form-control mb-2">
+  <option value="#000000">Qora</option>
+  <option value="#FF0000">Qizil</option>
+  <option value="#00FF00">Yashil</option>
+  <option value="#0000FF">Ko‘k</option>
+  <option value="#FF00FF">Magenta</option>
+  <option value="#00FFFF">Siyan</option>
+</select>
+<button class="btn mb-2" onclick="generateQR()">Generate</button>
+<div id="qrcode" class="text-center mt-3"></div>
+<button class="btn mt-3" onclick="saveQR()">Saqlash</button>
+</div>
+
+<!-- SCANNER -->
+<div id="scannerPage" style="display:none" class="text-center">
+
+  <h4 class="text-light mb-3">📷 QR Scanner</h4>
+
+  <div class="scanner-wrapper">
+    <div id="reader"></div>
+    <div class="scan-frame"></div>
+    <div class="scan-line"></div>
+  </div>
+
+  <p class="text-light mt-3">QR kodni ramka ichiga olib keling</p>
+
+  <!-- 🔥 FAQAT SCANNERDA KO‘RINADI -->
+  <div id="scannerControls" class="mt-3 d-flex justify-content-center gap-2">
+    <button class="btn btn-warning" onclick="toggleFlash()">🔦 Flash</button>
+    <button class="btn btn-info" onclick="switchCamera()">🔄 Camera</button>
+  </div>
+
+</div>
+<!-- HISTORY -->
+<div id="historyPage" style="display:none">
+<h4>Tarix</h4>
+<table class="table table-hover">
+<thead>
+<tr>
+<th>Qiymat</th>
+<th>Tur</th>
+<th>Amallar</th>
+</tr>
+</thead>
+<tbody id="historyTable"></tbody>
+</table>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal fade" id="resultModal">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Scan Natijasi</h5>
+<button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body text-center">
+  <p id="modalResult" style="word-break:break-all"></p>
+
+  <button class="btn btn-success mt-2" onclick="copyResult()">📋 Copy</button>
+  <button class="btn btn-primary mt-2" onclick="openLink()">🌐 Open Link</button>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const API="/api/";
+let scanner;
+
+/* THEME TOGGLE */
+document.getElementById("themeToggle").addEventListener("click",()=>{ document.body.classList.toggle("dark"); });
+
+/* LOADER */
+function showLoader(){ document.getElementById("loader").style.display="flex"; }
+function hideLoader(){ document.getElementById("loader").style.display="none"; }
+
+/* NAV */
+function showApp(){ auth.style.display="none"; app.style.display="block"; showGenerator(); }
+function showGenerator(){
+
+ generatorPage.style.display = "block";
+ scannerPage.style.display = "none";
+ historyPage.style.display = "none";
+
+ // 🔥 yashiramiz
+ scannerControls.style.display = "none";
+
+ stopScanner();
+}
+
+function showScanner(){
+
+ generatorPage.style.display = "none";
+ scannerPage.style.display = "block";
+ historyPage.style.display = "none";
+
+ // 🔥 controls chiqadi
+ scannerControls.style.display = "flex";
+
+ stopScanner();
+
+ setTimeout(startScanner, 300);
+}
+function showHistory(){
+
+ generatorPage.style.display = "none";
+ scannerPage.style.display = "none";
+ historyPage.style.display = "block";
+
+ // 🔥 yashiramiz
+ scannerControls.style.display = "none";
+
+ stopScanner();
+ loadHistory();
+}
+
+/* AUTH */
+function showRegister(){ loginForm.style.display="none"; registerForm.style.display="block"; }
+function showLogin(){ registerForm.style.display="none"; loginForm.style.display="block"; }
+
+function login(){ showLoader(); axios.post(API+"login/",{username:username.value,password:password.value}).then(r=>{ localStorage.token = r.data.access; showApp(); }).catch(err=>{ alert("Login xato!"); console.error(err); }).finally(hideLoader); }
+
+function register(){ showLoader(); axios.post(API+"register/",{username:regUser.value,password:regPass.value}).then(()=>{ alert("Ro‘yxatdan o‘tildi"); showLogin(); }).catch(err=>{ alert("Register xato!"); console.error(err); }).finally(hideLoader); }
+
+function logout(){ localStorage.removeItem("token"); location.reload(); }
+
+/* GENERATOR */
+function generateQR(){ if(!qrText.value){ alert("Matn kiriting!"); return; } qrcode.innerHTML=""; let color = document.getElementById("qrColor").value; new QRCode(qrcode, {text: qrText.value, colorDark: color, colorLight:"#ffffff"}); }
+
+function saveQR(){ showLoader(); axios.post(API+"save/",{value:qrText.value,type:"Generated"},{headers:{Authorization:"Bearer "+localStorage.token}}).then(()=>{ showHistory(); }).catch(err=>console.error(err)).finally(hideLoader); }
+
+/* HISTORY */
+function loadHistory(){ showLoader(); axios.get(API+"history/",{headers:{Authorization:"Bearer "+localStorage.token}}).then(res=>{ historyTable.innerHTML=""; if(!Array.isArray(res.data)) return; res.data.forEach(i=>{ historyTable.innerHTML += `<tr><td style="cursor:pointer;color:cyan" onclick="showSavedQR('${i.value || ""}')">${(i.value || "").substring(0,40)}</td><td>${i.type || ""}</td><td><button class="btn btn-secondary btn-sm" onclick="copyText('${i.value || ""}')">Copy</button><button class="btn btn-danger btn-sm" onclick="deleteQR(${i.id})">X</button></td></tr>`; }); }).catch(err=>console.error("History error:", err)).finally(hideLoader); }
+
+function showSavedQR(text){ showGenerator(); qrText.value=text; qrcode.innerHTML=""; generateQR(); }
+function copyText(text){ navigator.clipboard.writeText(text).then(()=>alert("Nusxalandi 📋")); }
+function deleteQR(id){ showLoader(); axios.delete(API+"delete/"+id+"/",{headers:{Authorization:"Bearer "+localStorage.token}}).then(loadHistory).finally(hideLoader); }
+
+/* SCANNER */
+let cameras = [];
+let currentCam = 0;
+let lastScanText = "";
+
+/* LOAD CAMERAS */
+Html5Qrcode.getCameras().then(devices=>{
+  cameras = devices;
+});
+
+/* START SCANNER */
+async function startScanner(){
+
+ if(scanner) return;
+
+ const readerDiv = document.getElementById("reader");
+ readerDiv.innerHTML = "";
+
+ scanner = new Html5Qrcode("reader");
+
+ scanner.start(
+   cameras[currentCam].id,
+   { fps: 10, qrbox: 250 },
+   async (text)=>{
+
+     lastScanText = text;
+
+     await stopScanner();
+
+     playBeep();
+     vibrate();
+
+     saveScanResult(text);
+     showModal(text);
+   }
+ );
+}
+
+/* STOP */
+async function stopScanner(){
+ if(scanner){
+   try{
+     await scanner.stop();
+     await scanner.clear();
+   }catch(e){}
+   scanner = null;
+ }
+}
+
+/* SWITCH CAMERA */
+async function switchCamera(){
+ if(!cameras.length) return;
+
+ currentCam = (currentCam + 1) % cameras.length;
+
+ await stopScanner();
+ startScanner();
+}
+
+/* FLASHLIGHT */
+async function toggleFlash(){
+ if(!scanner) return;
+
+ try{
+   const track = scanner.getRunningTrack();
+   const capabilities = track.getCapabilities();
+
+   if(capabilities.torch){
+     const settings = track.getSettings();
+     await track.applyConstraints({
+       advanced:[{ torch: !settings.torch }]
+     });
+   }else{
+     alert("Flash mavjud emas");
+   }
+ }catch(e){
+   alert("Flash ishlamadi");
+ }
+}
+
+/* SOUND */
+function playBeep(){
+ const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+ audio.play();
+}
+
+/* VIBRATION */
+function vibrate(){
+ if(navigator.vibrate) navigator.vibrate(200);
+}
+
+/* COPY */
+function copyResult(){
+ navigator.clipboard.writeText(lastScanText);
+ alert("Nusxalandi!");
+}
+
+/* OPEN LINK */
+function openLink(){
+ if(lastScanText.startsWith("http")){
+   window.open(lastScanText,"_blank");
+ }else{
+   alert("Bu link emas");
+ }
+}
+function saveScanResult(text){ showLoader(); axios.post(API+"save/",{value:text,type:"Scanned"},{headers:{Authorization:"Bearer "+localStorage.token}}).then(loadHistory).finally(hideLoader); }
+function showModal(text){
+ modalResult.innerText = text;
+
+ const modal = new bootstrap.Modal(resultModal, {
+   backdrop: false,   // 🔥 sahifani bloklamaydi
+   keyboard: true,
+   focus: false       // 🔥 focus lock yo‘q
+ });
+
+ modal.show();
+}
+
+/* AUTO LOGIN */
+if(localStorage.token) showApp();
+</script>
+
+</body>
+</html>
