@@ -352,7 +352,9 @@ Hisob yo‘qmi?
     <button class="btn btn-warning" onclick="toggleFlash()">🔦 Flash</button>
     <button class="btn btn-info" onclick="switchCamera()">🔄 Camera</button>
   </div>
+  <button class="btn btn-success" onclick="scanFromGallery()">🖼 Gallery</button>
 
+  <input type="file" id="qrFileInput" accept="image/*" style="display:none" onchange="readQRFromFile(this)">
 </div>
 <!-- HISTORY -->
 <div id="historyPage" style="display:none">
@@ -521,6 +523,42 @@ async function switchCamera(){
  startScanner();
 }
 
+/* ========= GALLERY SCAN ========= */
+
+function scanFromGallery(){
+  document.getElementById("qrFileInput").click();
+}
+
+async function readQRFromFile(input){
+
+  const file = input.files[0];
+  if(!file) return;
+
+  showLoader();
+
+  try {
+
+    const html5Qr = new Html5Qrcode("reader");
+
+    const text = await html5Qr.scanFile(file, true);
+
+    hideLoader();
+
+    lastScanText = text;
+
+    playBeep();
+    vibrate();
+
+    saveScanResult(text);
+    showModal(text);
+
+  } catch(e){
+    hideLoader();
+    alert("QR topilmadi!");
+  }
+
+  input.value = "";
+}
 /* FLASHLIGHT */
 async function toggleFlash() {
 
