@@ -221,6 +221,41 @@ z-index: 10; }
   .scanner-wrapper { width: 90%; }
   #reader { width:100%; height:300px; }
 }
+/* ===== MOBILE PRO FIX ===== */
+@media (max-width: 768px) {
+
+  .navbar .d-flex {
+    flex-wrap: wrap;
+    gap: 6px !important;
+  }
+
+  .btn {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+
+  #reader {
+    height: 260px !important;
+    max-width: 100% !important;
+  }
+
+  .scan-frame {
+    width: 200px;
+    height: 200px;
+  }
+
+  .scan-line {
+    width: 180px;
+  }
+
+  .container {
+    padding: 18px !important;
+  }
+
+  h4 {
+    font-size: 18px;
+  }
+}
 </style>
 </head>
 
@@ -487,24 +522,31 @@ async function switchCamera(){
 }
 
 /* FLASHLIGHT */
-async function toggleFlash(){
- if(!scanner) return;
+async function toggleFlash() {
 
- try{
-   const track = scanner.getRunningTrack();
-   const capabilities = track.getCapabilities();
+  if (!scanner) return;
 
-   if(capabilities.torch){
-     const settings = track.getSettings();
-     await track.applyConstraints({
-       advanced:[{ torch: !settings.torch }]
-     });
-   }else{
-     alert("Flash mavjud emas");
-   }
- }catch(e){
-   alert("Flash ishlamadi");
- }
+  try {
+    const track = scanner.getRunningTrack();
+    const imageCapture = new ImageCapture(track);
+    const capabilities = await imageCapture.getPhotoCapabilities();
+
+    if (capabilities.fillLightMode.includes("flash")) {
+
+      const settings = track.getSettings();
+      const torchOn = settings.torch || false;
+
+      await track.applyConstraints({
+        advanced: [{ torch: !torchOn }]
+      });
+
+    } else {
+      alert("Flash qo‘llab-quvvatlanmaydi");
+    }
+
+  } catch (e) {
+    alert("Flash faqat APK yoki PWA’da ishlaydi");
+  }
 }
 
 /* SOUND */
